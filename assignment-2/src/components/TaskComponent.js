@@ -1,13 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const TaskComponent = () => {
-    const tasks = ['Learn JSX', 'Understand Components', 'Practice Props and State', 'Build a React App'];
-    
-    const getRandomTask = () => tasks[Math.floor(Math.random() * tasks.length)];
+const TaskComponent = ({ tasks, setTasks, deleteTask }) => {
+    const [search, setSearch] = useState('');
+
+    const filteredTasks = tasks.filter(task =>
+        task.taskName.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const sortTasks = () => {
+        setTasks([...tasks].sort((a, b) => a.taskName.localeCompare(b.taskName)));
+    };
 
     return (
         <div>
-            <h3>Random Task: {getRandomTask()}</h3>
+            <input
+                type="text"
+                placeholder="Search Tasks"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+            />
+            <button onClick={sortTasks}>Sort by Name</button>
+            <ul>
+                {filteredTasks.map((task, index) => (
+                    <li key={index}>
+                        {task.taskName} - {task.description}
+                        <button onClick={() => deleteTask(index)}>Delete</button>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 };

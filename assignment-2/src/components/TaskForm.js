@@ -1,21 +1,33 @@
 import React, { useState } from 'react';
 
-const TaskForm = () => {
-    const [task, setTask] = useState('');
+const TaskForm = ({ addTask }) => {
+    const [taskName, setTaskName] = useState('');
+    const [description, setDescription] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(task);
-        setTask('');
+        if (!taskName || !description) {
+            alert('Both fields are required!');
+            return;
+        }
+        addTask({ taskName, description });
+        setTaskName('');
+        setDescription('');
     };
 
     return (
         <form onSubmit={handleSubmit}>
             <input
                 type="text"
-                value={task}
-                onChange={(e) => setTask(e.target.value)}
                 placeholder="Enter Task Name"
+                value={taskName}
+                onChange={(e) => setTaskName(e.target.value)}
+            />
+            <input
+                type="text"
+                placeholder="Enter Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
             />
             <button type="submit">Add Task</button>
         </form>
