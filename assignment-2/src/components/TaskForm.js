@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
+import { serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../firebase';
+import { addDoc, collection } from 'firebase/firestore';
 
 const TaskForm = ({ addTask }) => {
     const [taskName, setTaskName] = useState('');
     const [description, setDescription] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!taskName || !description) {
             alert('Both fields are required!');
             return;
         }
-        addTask({ taskName, description });
-        setTaskName('');
-        setDescription('');
+        try {
+            const task = {
+                taskName,
+                taskDescription: description,
+                createdAt: serverTimestamp(),
+                userId: auth.currentUser.uid
+            };
+            await addDoc(collection(db, 'tasks'), task);
+            setTaskName('');
+            setDescription('');
+        } catch (error) {
+            console.error('Error adding task: ', error);
+        }
     };
 
     return (

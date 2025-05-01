@@ -1,31 +1,37 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db, auth } from '../firebase';
 
-class UserInfo extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            name: 'John Doe',
-            profession: 'Software Engineer',
-            luckyNumber: Math.floor(Math.random() * 100) + 1
-        };
-    }
+const UserInfo = ({ handleClick }) => {
+    const [name, setName] = useState('');
+    const [profession, setProfession] = useState('');
+    const [luckyNumber, setLuckyNumber] = useState(Math.floor(Math.random() * 100) + 1);
 
-    generateNewLuckyNumber = () => {
-        this.setState({ luckyNumber: Math.floor(Math.random() * 100) + 1 });
+    useEffect(() => {
+        const unsubscribe = onSnapshot(doc(db, 'users', auth.currentUser.uid), (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                setName(docSnapshot.data().name || 'John Doe');
+                setProfession(docSnapshot.data().profession || 'Software Developer');
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const generateNewLuckyNumber = () => {
+        setLuckyNumber(Math.floor(Math.random() * 100) + 1);
     };
 
-    render() {
-        return (
-            <div>
-                <h2>User Information</h2>
-                <p>Name: {this.state.name}</p>
-                <p>Profession: {this.state.profession}</p>
-                <p>Your lucky number is: {this.state.luckyNumber}</p>
-                <button onClick={this.generateNewLuckyNumber}>Generate New Lucky Number</button>
-                <button onClick={this.props.handleClick}>Show Alert</button>
-            </div>
-        );
-    }
-}
+    return (
+        <div>
+            <h2>User Information</h2>
+            <p>Name: {name}</p>
+            <p>Profession: {profession}</p>
+            <p>Your lucky number is: {luckyNumber}</p>
+            <button onClick={generateNewLuckyNumber}>Generate New Lucky Number</button>
+            <button onClick={handleClick}>Show Alert</button>
+        </div>
+    );
+};
 
 export default UserInfo;
